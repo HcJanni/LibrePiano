@@ -52,6 +52,22 @@
   border-radius: 99px;
 }
 
+.rangeSelect {
+  background: #16213e;
+  border: 1px solid #2a2a4a;
+  color: #ccc;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.hint {
+  color: #666;
+  font-size: 12px;
+  margin-left: 8px;
+}
+
 .resetBtn {
   margin-left: auto;
   background: transparent;

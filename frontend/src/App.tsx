@@ -44,7 +44,11 @@ export default function App() {
 
       <main className="main">
         {mode === "exercise" && (
-          <NoteExercise {...exercise} onReset={exercise.reset} />
+          <NoteExercise
+            {...exercise}
+            onReset={exercise.reset}
+            onRangeChange={exercise.setRangeIndex}
+          />
         )}
 
         {mode === "song" && !midiFile.song && (
@@ -82,6 +86,7 @@ export default function App() {
 
           <Piano
             activeNotes={activeNotes}
+            targetNote={mode === "exercise" ? exercise.targetNote : undefined}
             onNoteDown={(note, velocity) => simulateNote(note, true, velocity)}
             onNoteUp={(note) => simulateNote(note, false)}
           />

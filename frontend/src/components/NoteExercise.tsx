@@ -1,8 +1,10 @@
-import { noteToName, type ExerciseState, type Feedback } from "../hooks/useExercise";
+import { noteToName, OCTAVE_RANGES, type ExerciseState, type Feedback } from "../hooks/useExercise";
 import styles from "./NoteExercise.module.css";
 
 interface NoteExerciseProps extends ExerciseState {
+  rangeIndex: number;
   onReset: () => void;
+  onRangeChange: (i: number) => void;
 }
 
 const FEEDBACK_TEXT: Record<NonNullable<Feedback>, string> = {
@@ -10,7 +12,7 @@ const FEEDBACK_TEXT: Record<NonNullable<Feedback>, string> = {
   wrong: "Falsch",
 };
 
-export function NoteExercise({ targetNote, feedback, wrongNote, score, streak, onReset }: NoteExerciseProps) {
+export function NoteExercise({ targetNote, feedback, wrongNote, score, streak, rangeIndex, onReset, onRangeChange }: NoteExerciseProps) {
   return (
     <div className={`${styles.card} ${feedback ? styles[feedback] : ""}`}>
       <div className={styles.top}>
@@ -21,12 +23,24 @@ export function NoteExercise({ targetNote, feedback, wrongNote, score, streak, o
         {streak >= 2 && (
           <span className={styles.streak}>{streak}x Streak</span>
         )}
+
+        <select
+          className={styles.rangeSelect}
+          value={rangeIndex}
+          onChange={(e) => onRangeChange(Number(e.target.value))}
+        >
+          {OCTAVE_RANGES.map((r, i) => (
+            <option key={i} value={i}>{r.label}</option>
+          ))}
+        </select>
+
         <button className={styles.resetBtn} onClick={onReset}>Neu starten</button>
       </div>
 
       <div className={styles.target}>
         <span className={styles.label}>Spiel diese Note:</span>
         <span className={styles.noteName}>{noteToName(targetNote)}</span>
+        <span className={styles.hint}>↓ gelb markiert auf der Tastatur</span>
       </div>
 
       <div className={styles.feedback}>

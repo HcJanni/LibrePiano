@@ -35,6 +35,14 @@
   background: #4a9eff !important;
 }
 
+.targetWhite {
+  box-shadow: inset 0 -6px 0 #ffcc00;
+}
+
+.targetBlack {
+  box-shadow: inset 0 -4px 0 #a07800;
+}
+
 .black {
   position: absolute;
   width: var(--black-width);
