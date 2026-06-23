@@ -1,0 +1,142 @@
+.card {
+  background: #1a1a2e;
+  border-radius: 12px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 16px;
+  transition: box-shadow 0.05s;
+  border: 2px solid transparent;
+}
+
+.pulse {
+  border-color: #4a9eff44;
+  box-shadow: 0 0 20px #4a9eff22;
+}
+
+.left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 64px;
+}
+
+.bpmValue {
+  font-size: 42px;
+  font-weight: 700;
+  color: #4a9eff;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.bpmLabel {
+  font-size: 11px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.beats {
+  display: flex;
+  gap: 16px;
+}
+
+.dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #2a2a4a;
+  transition: background 0.05s, transform 0.05s;
+}
+
+.dot.accent {
+  border: 2px solid #4a9eff44;
+}
+
+.dot.active {
+  background: #4a9eff;
+  transform: scale(1.3);
+}
+
+.dot.accent.active {
+  background: #ff9800;
+}
+
+/* Pendel */
+.pendulum {
+  width: 4px;
+  height: 80px;
+  background: #2a2a4a;
+  border-radius: 2px;
+  transform-origin: top center;
+  transition: transform 0.12s ease-in-out;
+  position: relative;
+}
+
+.pendulumBall {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #4a9eff;
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.slider {
+  writing-mode: vertical-lr;
+  direction: rtl;
+  height: 80px;
+  accent-color: #4a9eff;
+  cursor: pointer;
+}
+
+.bpmButtons {
+  display: flex;
+  gap: 4px;
+}
+
+.bpmBtn {
+  background: #16213e;
+  border: 1px solid #2a2a4a;
+  color: #aaa;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  transition: background 0.1s;
+}
+.bpmBtn:hover { background: #2a2a5a; color: #fff; }
+
+.toggleBtn {
+  background: #16213e;
+  border: 2px solid #2a2a4a;
+  color: #aaa;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.toggleBtn:hover { border-color: #4a9eff; color: #4a9eff; }
+.toggleBtn.running { border-color: #ff4444; color: #ff4444; }

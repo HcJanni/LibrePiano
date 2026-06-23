@@ -1,0 +1,15 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.optionalUpload {
+  margin-top: 8px;
+}
+
+.hint {
+  color: #666;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
