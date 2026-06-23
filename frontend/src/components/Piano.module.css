@@ -1,0 +1,58 @@
+:root {
+  --white-width: 36px;
+  --white-height: 160px;
+  --black-width: 22px;
+  --black-height: 100px;
+}
+
+.piano {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  height: var(--white-height);
+  user-select: none;
+  margin: 0 auto;
+  width: fit-content;
+}
+
+.white {
+  width: var(--white-width);
+  height: var(--white-height);
+  background: #f8f8f0;
+  border: 1px solid #ccc;
+  border-radius: 0 0 6px 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.05s;
+  padding: 0;
+}
+
+.white:hover {
+  background: #e8e8e0;
+}
+
+.activeWhite {
+  background: #4a9eff !important;
+}
+
+.black {
+  position: absolute;
+  width: var(--black-width);
+  height: var(--black-height);
+  background: #222;
+  border-radius: 0 0 4px 4px;
+  top: 0;
+  cursor: pointer;
+  z-index: 2;
+  transition: background 0.05s;
+  padding: 0;
+  border: none;
+}
+
+.black:hover {
+  background: #444;
+}
+
+.activeBlack {
+  background: #1a7de0 !important;
+}
