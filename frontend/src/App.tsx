@@ -11,7 +11,10 @@ import { PlaybackControls } from "./components/PlaybackControls";
 import { RhythmMode } from "./components/RhythmMode";
 import "./App.css";
 
-const WS_URL = "ws://localhost:8000/midi/ws";
+// Im Dev-Modus direkt zum Backend, in Produktion durch nginx auf demselben Host
+const WS_URL = import.meta.env.DEV
+  ? "ws://localhost:8000/midi/ws"
+  : `ws://${window.location.host}/midi/ws`;
 type Mode = "free" | "exercise" | "song" | "rhythm";
 
 export default function App() {
