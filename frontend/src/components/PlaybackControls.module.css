@@ -1,0 +1,91 @@
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #1a1a2e;
+  border-radius: 10px 10px 0 0;
+  padding: 10px 16px;
+  flex-wrap: wrap;
+}
+
+.name {
+  font-weight: 600;
+  color: #e0e0e0;
+  font-size: 13px;
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.controls { display: flex; gap: 6px; }
+
+.btn {
+  background: #16213e;
+  border: 1px solid #2a2a4a;
+  color: #e0e0e0;
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.1s;
+}
+.btn:hover { background: #2a2a5a; }
+
+.progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 180px;
+}
+
+.time {
+  color: #888;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.slider {
+  flex: 1;
+  accent-color: #4a9eff;
+  cursor: pointer;
+}
+
+.waitLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #aaa;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  accent-color: #4a9eff;
+}
+
+.waitingBadge {
+  background: #3a2a00;
+  color: #ffcc00;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 99px;
+  white-space: nowrap;
+}
+
+.clearBtn {
+  background: transparent;
+  border: 1px solid #333;
+  color: #666;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: color 0.1s, border-color 0.1s;
+}
+.clearBtn:hover { color: #f44336; border-color: #f44336; }

@@ -1,0 +1,5 @@
+.canvas {
+  display: block;
+  /* Kein Abstand zwischen Roll und Klaviatur */
+  margin-bottom: 0;
+}

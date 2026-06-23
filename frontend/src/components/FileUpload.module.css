@@ -1,0 +1,33 @@
+.zone {
+  border: 2px dashed #333;
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  margin-bottom: 16px;
+}
+
+.zone:hover,
+.dragging {
+  border-color: #4a9eff;
+  background: #0d1a2e;
+}
+
+.icon {
+  font-size: 40px;
+  display: block;
+  margin-bottom: 12px;
+  color: #4a9eff;
+}
+
+.text {
+  color: #ccc;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.hint {
+  color: #555;
+  font-size: 12px;
+}
