@@ -1,12 +1,15 @@
 import { useMidi } from "./hooks/useMidi";
+import { useExercise } from "./hooks/useExercise";
 import { Piano } from "./components/Piano";
 import { NoteDisplay } from "./components/NoteDisplay";
+import { NoteExercise } from "./components/NoteExercise";
 import "./App.css";
 
 const WS_URL = "ws://localhost:8000/midi/ws";
 
 export default function App() {
   const { activeNotes, connected, simulateNote } = useMidi(WS_URL);
+  const exercise = useExercise(activeNotes);
 
   return (
     <div className="app">
@@ -18,6 +21,7 @@ export default function App() {
       </header>
 
       <main className="main">
+        <NoteExercise {...exercise} onReset={exercise.reset} />
         <NoteDisplay activeNotes={activeNotes} />
 
         <div className="piano-wrapper">

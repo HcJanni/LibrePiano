@@ -1,0 +1,99 @@
+.card {
+  background: #1a1a2e;
+  border-radius: 12px;
+  padding: 20px 24px;
+  border: 2px solid transparent;
+  transition: border-color 0.15s, background 0.15s;
+  margin-bottom: 16px;
+}
+
+.card.correct {
+  border-color: #4caf50;
+  background: #0d2e0d;
+}
+
+.card.wrong {
+  border-color: #f44336;
+  background: #2e0d0d;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.scoreBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.scoreLabel {
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.scoreValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: #4a9eff;
+}
+
+.streak {
+  background: #ff9800;
+  color: #000;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 99px;
+}
+
+.resetBtn {
+  margin-left: auto;
+  background: transparent;
+  border: 1px solid #444;
+  color: #888;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: border-color 0.1s, color 0.1s;
+}
+
+.resetBtn:hover {
+  border-color: #888;
+  color: #e0e0e0;
+}
+
+.target {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.label {
+  color: #888;
+  font-size: 14px;
+}
+
+.noteName {
+  font-size: 52px;
+  font-weight: 700;
+  color: #e0e0e0;
+  letter-spacing: -1px;
+  min-width: 80px;
+}
+
+.feedback {
+  min-height: 28px;
+  margin-top: 10px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.correct { color: #4caf50; }
+.wrong   { color: #f44336; }
