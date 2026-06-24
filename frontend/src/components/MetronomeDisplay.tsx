@@ -45,7 +45,7 @@ export function MetronomeDisplay({ bpm, beat, pulse, running, onBpmChange, onTog
           value={bpm}
           onChange={(e) => onBpmChange(Number(e.target.value))}
           className={styles.slider}
-          orient="vertical"
+          style={{ writingMode: "vertical-lr", direction: "rtl" }}
         />
         <div className={styles.bpmButtons}>
           <button className={styles.bpmBtn} onClick={() => onBpmChange(Math.max(40, bpm - 5))}>−5</button>
