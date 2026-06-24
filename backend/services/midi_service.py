@@ -33,10 +33,18 @@ class MidiService:
                 print("INFO: Kein MIDI-Gerät gefunden. Piano anschließen und neu starten.")
                 return
 
-            # Yamaha bevorzugen, sonst erstes verfügbares Gerät
+            # Yamaha / Digital Piano bevorzugen, "Midi Through" überspringen
+            SKIP = ("midi through", "through port")
+            real_ports = [
+                i for i, name in enumerate(ports)
+                if not any(s in name.lower() for s in SKIP)
+            ]
+            if not real_ports:
+                print("INFO: Nur virtuelle MIDI-Ports gefunden, kein echtes Gerät.")
+                return
             port_idx = next(
-                (i for i, name in enumerate(ports) if "yamaha" in name.lower()),
-                0,
+                (i for i in real_ports if "yamaha" in ports[i].lower() or "digital piano" in ports[i].lower()),
+                real_ports[0],
             )
             midi_in.open_port(port_idx)
             midi_in.set_callback(self._on_midi_message)
