@@ -13,6 +13,7 @@ interface PlaybackControlsProps {
   onSeek: (time: number) => void;
   onClear: () => void;
   onWaitModeChange: (v: boolean) => void;
+  onSkip: () => void;
 }
 
 function formatTime(sec: number): string {
@@ -23,7 +24,7 @@ function formatTime(sec: number): string {
 
 export function PlaybackControls({
   state, currentTime, duration, songName, waitMode,
-  onPlay, onPause, onStop, onSeek, onClear, onWaitModeChange,
+  onPlay, onPause, onStop, onSeek, onClear, onWaitModeChange, onSkip,
 }: PlaybackControlsProps) {
   const isPlaying = state === "playing";
   const isWaiting = state === "waiting";
@@ -64,7 +65,10 @@ export function PlaybackControls({
       </label>
 
       {isWaiting && (
-        <span className={styles.waitingBadge}>⏳ Warte auf Note…</span>
+        <div className={styles.waitingRow}>
+          <span className={styles.waitingBadge}>⏳ Warte auf Note…</span>
+          <button className={styles.skipBtn} onClick={onSkip} title="Note überspringen">Überspringen</button>
+        </div>
       )}
 
       <button className={styles.clearBtn} onClick={onClear}>✕</button>

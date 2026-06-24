@@ -12,9 +12,29 @@ export interface SongData {
   name: string;
   notes: ParsedNote[];
   duration: number;
+  groups: NoteGroup[]; // vorberechnet beim Laden
+}
+
+export interface NoteGroup {
+  time: number;
+  notes: Set<number>;
 }
 
 export type PlaybackState = "idle" | "playing" | "paused" | "waiting";
+
+// Noten die innerhalb von 80ms starten kommen in dieselbe Gruppe (= Akkord)
+function computeGroups(notes: ParsedNote[], threshold = 0.08): NoteGroup[] {
+  const groups: NoteGroup[] = [];
+  for (const note of [...notes].sort((a, b) => a.time - b.time)) {
+    const last = groups[groups.length - 1];
+    if (last && note.time - last.time <= threshold) {
+      last.notes.add(note.note);
+    } else {
+      groups.push({ time: note.time, notes: new Set([note.note]) });
+    }
+  }
+  return groups;
+}
 
 export function useMidiFile(activeNotes: Map<number, number>, waitMode: boolean) {
   const [song, setSong] = useState<SongData | null>(null);
@@ -22,16 +42,16 @@ export function useMidiFile(activeNotes: Map<number, number>, waitMode: boolean)
   const [currentTime, setCurrentTime] = useState(0);
   const [pendingNotes, setPendingNotes] = useState<Set<number>>(new Set());
 
-  // Refs für den Animationsloop — React-State ist in rAF-Callbacks veraltet
-  const rafRef        = useRef<number | null>(null);
-  const startWallRef  = useRef(0);
-  const startTimeRef  = useRef(0);
-  const curTimeRef    = useRef(0);
-  const pendingRef    = useRef<Set<number>>(new Set());
-  const latchedRef    = useRef<Set<number>>(new Set()); // gespielte pending Notes
-  const songRef       = useRef<SongData | null>(null);
-  const waitModeRef   = useRef(waitMode);
-  const stateRef      = useRef<PlaybackState>("idle");
+  const rafRef           = useRef<number | null>(null);
+  const startWallRef     = useRef(0);
+  const startTimeRef     = useRef(0);
+  const curTimeRef       = useRef(0);
+  const pendingRef       = useRef<Set<number>>(new Set());
+  const latchedRef       = useRef<Set<number>>(new Set());
+  const songRef          = useRef<SongData | null>(null);
+  const waitModeRef      = useRef(waitMode);
+  const stateRef         = useRef<PlaybackState>("idle");
+  const nextGroupIdxRef  = useRef(0); // Index der nächsten Wartegruppe
 
   useEffect(() => { waitModeRef.current = waitMode; }, [waitMode]);
   useEffect(() => { songRef.current = song; }, [song]);
@@ -40,12 +60,8 @@ export function useMidiFile(activeNotes: Map<number, number>, waitMode: boolean)
     if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
   }, []);
 
-  const syncTime = (t: number) => { curTimeRef.current = t; setCurrentTime(t); };
+  const syncTime  = (t: number) => { curTimeRef.current = t; setCurrentTime(t); };
   const syncState = (s: PlaybackState) => { stateRef.current = s; setPlaybackState(s); };
-
-  // Gibt alle Noten zurück die in einem 80ms-Fenster um `time` starten
-  const noteGroupAt = (song: SongData, time: number): ParsedNote[] =>
-    song.notes.filter((n) => Math.abs(n.time - time) <= 0.08);
 
   const startAnimLoop = useCallback(() => {
     const loop = () => {
@@ -53,21 +69,19 @@ export function useMidiFile(activeNotes: Map<number, number>, waitMode: boolean)
       if (!song) return;
 
       const elapsed = (performance.now() - startWallRef.current) / 1000;
-      const prevTime = curTimeRef.current;
       const newTime = startTimeRef.current + elapsed;
 
       if (waitModeRef.current) {
-        // Noten die in diesem Tick fällig werden
-        const due = song.notes.find((n) => n.time > prevTime && n.time <= newTime);
-        if (due) {
-          const group = noteGroupAt(song, due.time);
-          const noteSet = new Set(group.map((n) => n.note));
-          pendingRef.current = noteSet;
-          latchedRef.current = new Set();
-          setPendingNotes(noteSet);
-          syncTime(due.time);
+        const groups = song.groups;
+        const idx    = nextGroupIdxRef.current;
+        // Prüfen ob die nächste Gruppe fällig ist
+        if (idx < groups.length && newTime >= groups[idx].time) {
+          pendingRef.current  = new Set(groups[idx].notes);
+          latchedRef.current  = new Set();
+          setPendingNotes(new Set(groups[idx].notes));
+          syncTime(groups[idx].time);
           syncState("waiting");
-          return; // Loop pausiert — wird von activeNotes-Effect wieder gestartet
+          return; // Loop hält — wird durch activeNotes-Effect wieder gestartet
         }
       }
 
@@ -99,20 +113,26 @@ export function useMidiFile(activeNotes: Map<number, number>, waitMode: boolean)
   const stop = useCallback(() => {
     cancelAnim();
     syncTime(0);
-    syncState("idle");
-    pendingRef.current = new Set();
-    latchedRef.current = new Set();
+    nextGroupIdxRef.current = 0;
+    pendingRef.current  = new Set();
+    latchedRef.current  = new Set();
     setPendingNotes(new Set());
+    syncState("idle");
   }, [cancelAnim]);
 
   const seek = useCallback((time: number) => {
-    const wasPlaying = stateRef.current === "playing";
     cancelAnim();
     syncTime(time);
-    pendingRef.current = new Set();
-    latchedRef.current = new Set();
+    pendingRef.current  = new Set();
+    latchedRef.current  = new Set();
     setPendingNotes(new Set());
-    if (wasPlaying) {
+
+    // Nächste Gruppe nach der neuen Zeit finden
+    const groups = songRef.current?.groups ?? [];
+    const idx    = groups.findIndex(g => g.time > time);
+    nextGroupIdxRef.current = idx === -1 ? groups.length : idx;
+
+    if (stateRef.current === "playing") {
       startWallRef.current = performance.now();
       startTimeRef.current = time;
       syncState("playing");
@@ -122,53 +142,62 @@ export function useMidiFile(activeNotes: Map<number, number>, waitMode: boolean)
     }
   }, [cancelAnim, startAnimLoop]);
 
+  const skip = useCallback(() => {
+    if (stateRef.current !== "waiting") return;
+    nextGroupIdxRef.current++;
+    pendingRef.current  = new Set();
+    latchedRef.current  = new Set();
+    setPendingNotes(new Set());
+    startWallRef.current = performance.now();
+    startTimeRef.current = curTimeRef.current;
+    syncState("playing");
+    startAnimLoop();
+  }, [startAnimLoop]);
+
   const loadFile = useCallback((file: File) => {
     cancelAnim();
     const reader = new FileReader();
     reader.onload = (e) => {
       const buffer = e.target?.result as ArrayBuffer;
-      const midi = new Midi(buffer);
+      const midi   = new Midi(buffer);
       const notes: ParsedNote[] = [];
-      for (const track of midi.tracks) {
-        for (const n of track.notes) {
-          notes.push({
-            note: n.midi,
-            time: n.time,
-            duration: n.duration,
-            velocity: Math.round(n.velocity * 127),
-          });
-        }
-      }
+      for (const track of midi.tracks)
+        for (const n of track.notes)
+          notes.push({ note: n.midi, time: n.time, duration: n.duration, velocity: Math.round(n.velocity * 127) });
       notes.sort((a, b) => a.time - b.time);
+
       const newSong: SongData = {
         name: file.name.replace(/\.midi?$/i, ""),
         notes,
         duration: midi.duration,
+        groups: computeGroups(notes),
       };
       songRef.current = newSong;
       setSong(newSong);
       syncTime(0);
-      syncState("idle");
-      pendingRef.current = new Set();
-      latchedRef.current = new Set();
+      nextGroupIdxRef.current = 0;
+      pendingRef.current  = new Set();
+      latchedRef.current  = new Set();
       setPendingNotes(new Set());
+      syncState("idle");
     };
     reader.readAsArrayBuffer(file);
   }, [cancelAnim]);
 
-  // Prüft ob alle pending Notes gespielt wurden (mit Latch — einzeln okay)
+  // Prüft ob alle pending Notes gespielt wurden
   useEffect(() => {
     if (pendingRef.current.size === 0 || stateRef.current !== "waiting") return;
 
-    for (const note of activeNotes.keys()) {
+    for (const note of activeNotes.keys())
       if (pendingRef.current.has(note)) latchedRef.current.add(note);
-    }
 
-    const allDone = Array.from(pendingRef.current).every((n) => latchedRef.current.has(n));
+    const allDone = Array.from(pendingRef.current).every(n => latchedRef.current.has(n));
     if (!allDone) return;
 
-    pendingRef.current = new Set();
-    latchedRef.current = new Set();
+    // Gruppe als erledigt markieren und weiterspielen
+    nextGroupIdxRef.current++;
+    pendingRef.current  = new Set();
+    latchedRef.current  = new Set();
     setPendingNotes(new Set());
 
     setTimeout(() => {
@@ -176,8 +205,8 @@ export function useMidiFile(activeNotes: Map<number, number>, waitMode: boolean)
       startTimeRef.current = curTimeRef.current;
       syncState("playing");
       startAnimLoop();
-    }, 150);
+    }, 100);
   }, [activeNotes, startAnimLoop]);
 
-  return { song, playbackState, currentTime, pendingNotes, loadFile, play, pause, stop, seek };
+  return { song, playbackState, currentTime, pendingNotes, loadFile, play, pause, stop, seek, skip };
 }

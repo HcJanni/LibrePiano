@@ -75,6 +75,7 @@ export default function App() {
             onPause={midiFile.pause}
             onStop={midiFile.stop}
             onSeek={midiFile.seek}
+            onSkip={midiFile.skip}
             onWaitModeChange={setWaitMode}
             onClear={() => { midiFile.stop(); window.location.reload(); }}
           />
@@ -96,6 +97,7 @@ export default function App() {
           <Piano
             activeNotes={activeNotes}
             targetNote={mode === "exercise" ? exercise.targetNote : undefined}
+            targetNotes={mode === "song" && midiFile.pendingNotes.size > 0 ? midiFile.pendingNotes : undefined}
             onNoteDown={(note, velocity) => simulateNote(note, true, velocity)}
             onNoteUp={(note) => simulateNote(note, false)}
           />

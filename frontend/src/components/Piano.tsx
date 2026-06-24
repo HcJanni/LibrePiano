@@ -32,14 +32,13 @@ function positionToVelocity(e: React.MouseEvent<HTMLButtonElement>): number {
 function keyStyle(
   note: number,
   activeNotes: Map<number, number>,
-  targetNote?: number,
+  isTarget: boolean,
 ): React.CSSProperties | undefined {
   const velocity = activeNotes.get(note);
   if (velocity !== undefined) {
     return { backgroundColor: velocityToColor(velocity, isBlack(note)) };
   }
-  if (note === targetNote) {
-    // Zielnote: gelb — leicht transparent damit die Tastenform erkennbar bleibt
+  if (isTarget) {
     return { backgroundColor: isBlack(note) ? "#a07800" : "#ffcc00" };
   }
   return undefined;
@@ -47,27 +46,32 @@ function keyStyle(
 
 interface PianoProps {
   activeNotes: Map<number, number>;
-  targetNote?: number;
+  targetNote?: number;       // Übungsmodus: einzelne Note
+  targetNotes?: Set<number>; // Song-Modus: ganzer Akkord
   onNoteDown: (note: number, velocity: number) => void;
   onNoteUp: (note: number) => void;
 }
 
-export function Piano({ activeNotes, targetNote, onNoteDown, onNoteUp }: PianoProps) {
+export function Piano({ activeNotes, targetNote, targetNotes, onNoteDown, onNoteUp }: PianoProps) {
   const whiteKeys: number[] = [];
   for (let n = START_NOTE; n <= END_NOTE; n++) {
     if (!isBlack(n)) whiteKeys.push(n);
   }
 
+  const isTarget = (note: number) =>
+    (targetNotes ? targetNotes.has(note) : note === targetNote) &&
+    !activeNotes.has(note);
+
   return (
     <div className={styles.piano}>
       {whiteKeys.map((note) => {
         const velocity = activeNotes.get(note);
-        const isTarget = note === targetNote && velocity === undefined;
+        const target   = isTarget(note);
         return (
           <button
             key={note}
-            className={`${styles.white} ${velocity !== undefined ? styles.activeWhite : ""} ${isTarget ? styles.targetWhite : ""}`}
-            style={keyStyle(note, activeNotes, targetNote)}
+            className={`${styles.white} ${velocity !== undefined ? styles.activeWhite : ""} ${target ? styles.targetWhite : ""}`}
+            style={keyStyle(note, activeNotes, target)}
             onMouseDown={(e) => onNoteDown(note, positionToVelocity(e))}
             onMouseUp={() => onNoteUp(note)}
             onMouseLeave={() => activeNotes.has(note) && onNoteUp(note)}
@@ -79,16 +83,16 @@ export function Piano({ activeNotes, targetNote, onNoteDown, onNoteUp }: PianoPr
       {Array.from({ length: END_NOTE - START_NOTE + 1 }, (_, i) => START_NOTE + i)
         .filter(isBlack)
         .map((note) => {
-          const velocity = activeNotes.get(note);
+          const velocity    = activeNotes.get(note);
           const whitesBefore = whiteKeys.filter((n) => n < note).length;
-          const isTarget = note === targetNote && velocity === undefined;
+          const target       = isTarget(note);
           return (
             <button
               key={note}
-              className={`${styles.black} ${velocity !== undefined ? styles.activeBlack : ""} ${isTarget ? styles.targetBlack : ""}`}
+              className={`${styles.black} ${velocity !== undefined ? styles.activeBlack : ""} ${target ? styles.targetBlack : ""}`}
               style={{
                 left: `calc(${whitesBefore} * var(--white-width) - var(--black-width) / 2)`,
-                ...keyStyle(note, activeNotes, targetNote),
+                ...keyStyle(note, activeNotes, target),
               }}
               onMouseDown={(e) => onNoteDown(note, positionToVelocity(e))}
               onMouseUp={() => onNoteUp(note)}

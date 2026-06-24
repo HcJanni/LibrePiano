@@ -68,6 +68,12 @@
   accent-color: #4a9eff;
 }
 
+.waitingRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .waitingBadge {
   background: #3a2a00;
   color: #ffcc00;
@@ -77,6 +83,19 @@
   border-radius: 99px;
   white-space: nowrap;
 }
+
+.skipBtn {
+  background: #2a1a00;
+  border: 1px solid #5a4000;
+  color: #ffcc00;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.1s;
+}
+.skipBtn:hover { background: #3a2800; }
 
 .clearBtn {
   background: transparent;

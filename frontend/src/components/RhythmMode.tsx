@@ -50,6 +50,7 @@ export function RhythmMode({ activeNotes }: RhythmModeProps) {
             onStop={midiFile.stop}
             onSeek={midiFile.seek}
             onWaitModeChange={() => {}}
+            onSkip={() => {}}
             onClear={() => { midiFile.stop(); window.location.reload(); }}
           />
           <TimingFeedback
